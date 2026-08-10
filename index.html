@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>JoeWaves</title>
+    <link rel="icon" type="image/png" href="/assets/waves.png">
+    <link rel="stylesheet" href="style.css"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+    <div class="terminal">
+        <div class="prompt-line">
+            <span class="user-name">Joe@Waves</span><span style="color: #fff; margin-right: 8px;">:~$</span>
+            <span class="typed-text" id="typed"></span><span class="cursor"></span>
+        </div>
+    </div>
+
+    <script>
+const textToType = "Welcome to JoeWaves";
+const typedContainer = document.getElementById("typed");
+let index = 0;
+
+function typeWriter() {
+    if (index < textToType.length) {
+        typedContainer.textContent += textToType.charAt(index);
+        index++;
+        setTimeout(typeWriter, Math.random() * 80 + 50);
+    } else {
+        setTimeout(() => {
+            window.location.href = "beta.html";
+        }, 1500);
+    }
+}
+setTimeout(typeWriter, 500);
+    </script>
+</body>
+</html>
