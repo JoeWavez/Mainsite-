@@ -4,34 +4,75 @@
     <meta charset="UTF-8">
     <title>JoeWaves</title>
     <link rel="icon" type="image/png" href="/assets/waves.png">
-    <link rel="stylesheet" href="style.css"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <div class="terminal">
-        <div class="prompt-line">
-            <span class="user-name">Joe@Waves</span><span style="color: #fff; margin-right: 8px;">:~$</span>
-            <span class="typed-text" id="typed"></span><span class="cursor"></span>
+        <div class="terminal-bar">
+            <div class="bar-title" aria-hidden="true">
+                <strong>JoeWaves</strong>
+                <span class="stacked-filename">~ — joewaves@wavefront</span>
+            </div>
+            <button class="close-btn" type="button" aria-label="Close window — go to homepage">×</button>
+        </div>
+        <div class="terminal-view">
+            <div class="prompt-line">
+                <span class="prompt-path"><span class="user-name">joewaves</span>@wavefront:~$</span>
+                <span class="typed-text" id="typed"></span><span class="cursor" id="cursor"></span>
+            </div>
+            <div class="output-line" id="output" hidden><strong>joewaves</strong></div>
         </div>
     </div>
 
     <script>
-const textToType = "Welcome to JoeWaves";
-const typedContainer = document.getElementById("typed");
-let index = 0;
-
-function typeWriter() {
-    if (index < textToType.length) {
-        typedContainer.textContent += textToType.charAt(index);
-        index++;
-        setTimeout(typeWriter, Math.random() * 80 + 50);
-    } else {
-        setTimeout(() => {
-            window.location.href = "beta.html";
-        }, 1500);
-    }
+let navigating = false;
+function goToBeta() {
+    if (navigating) return;
+    navigating = true;
+    window.location.href = "beta.html";
 }
-setTimeout(typeWriter, 500);
+
+document.querySelector(".close-btn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    goToBeta();
+});
+
+document.body.addEventListener("click", goToBeta);
+
+const typedEl = document.getElementById("typed");
+const outputEl = document.getElementById("output");
+const cursorEl = document.getElementById("cursor");
+const command = "whoami";
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function showAnswer() {
+    cursorEl.remove();
+    outputEl.hidden = false;
+    setTimeout(goToBeta, 1500);
+}
+
+if (reducedMotion) {
+    // No typewriter: show the finished command and answer immediately
+    typedEl.textContent = command;
+    showAnswer();
+} else {
+    let index = 0;
+    function typeCommand() {
+        if (index < command.length) {
+            typedEl.textContent += command.charAt(index);
+            index++;
+            setTimeout(typeCommand, Math.random() * 80 + 50);
+        } else {
+            setTimeout(showAnswer, 400);
+        }
+    }
+    setTimeout(typeCommand, 500);
+}
     </script>
 </body>
 </html>
