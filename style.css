@@ -1,45 +1,243 @@
- :root{
+:root {
+    /* Foundations */
     --bg: #111;
-    --text:#ffffff;
-    --accent:#00897b;
-    --content-width:700px;
-    --viewport-padding:clamp(16px,4vw,50px);
-    --preview-center-offset:clamp(140px,18vw,320px);
-    --preview-width:clamp(220px,24vw,360px);
+    --text: #f4f6f5;                       /* off-white ink — softer than pure #fff */
+    --dim: #9fb0aa;                        /* secondary output, dim green-grey */
+    --accent: #00897b;
+    --content-width: 700px;
+    --viewport-padding: clamp(16px, 4vw, 50px);
+    --preview-center-offset: clamp(140px, 18vw, 320px);
+    --preview-width: clamp(220px, 24vw, 360px);
+
+    /* Two-voice type system:
+       mono = the machine (Ghostty's bundled JetBrains Mono), serif = the human */
+    --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+    --font-serif: "Libertinus Serif", Georgia, serif;
+
+    /* Material tokens — the "glass" recipes, defined once */
+    --surface: #1c1b1b;                    /* opaque fallback (reduced transparency) */
+    --surface-glass: rgba(38, 37, 37, 0.6);
+    --terminal-glass: rgba(30, 30, 30, 0.55);
+    --stroke-hairline: rgba(255, 255, 255, 0.14);
+    --stroke-edge: rgba(255, 255, 255, 0.28);
+    --blur: 24px;
+    --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    margin: 0;
+    padding: 40px var(--viewport-padding) 64px;
+
+    /* Serif body: slightly more leading */
+    font: 400 100%/1.6 var(--font-serif);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Optical sizing per scale — tracking is size-specific, never one value */
+h1 {
+    color: var(--accent);
+    font-family: var(--font-serif);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 6vw, 4rem);   /* scales with viewport instead of fixed 5rem */
+    letter-spacing: -0.02em;               /* negative tracking as display type grows */
+    line-height: 1.05;
+    margin: 0 0 16px;
+    text-align: center;
+    text-wrap: balance;
+}
+
+p, a {
+    letter-spacing: 0.01em;                /* small text: slight positive tracking */
+}
+
+::selection {
+    background: var(--accent);
+    color: #fff;
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+/* ======= Landing terminal (index.html) — Ghostty on Linux ======= */
+
+/* One fictional window: headerbar + view form one glass card */
 .terminal {
-    background: #191919;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 20px 25px;
+    position: relative;
+    overflow: hidden;
+    background: var(--terminal-glass);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(160%);
+    backdrop-filter: blur(var(--blur)) saturate(160%);
+    border: 1px solid var(--stroke-hairline);
+    border-radius: 12px;
     width: 100%;
     max-width: 500px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
-.prompt-line {
+/* GTK/libadwaita headerbar: flat, single close button on the RIGHT,
+   underline hairline — no macOS traffic lights */
+.terminal-bar {
+    position: relative;
     display: flex;
     align-items: center;
-    font-size: 1.1rem;
+    justify-content: flex-end;             /* close button right-aligned, GTK-style */
+    height: 40px;
+    padding: 0 10px;
+    border-bottom: 1px solid var(--stroke-hairline);
+    font-family: var(--font-mono);
+}
+
+/* GNOME-style stacked title: filename over window role, centered */
+.terminal-bar .bar-title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.25;
+    text-align: center;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+}
+
+.terminal-bar .bar-title strong {
+    font-weight: 600;
+    color: var(--text);
+}
+
+.terminal-bar .bar-title .stacked-filename {
+    color: var(--dim);
+    font-weight: 400;
+}
+
+/* Adwaita circular close button — dim until hovered */
+.close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    background: #3a3a3a;
+    border: none;
+    border-radius: 50%;
+    color: var(--dim);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease-out, color 0.15s ease-out;
+}
+
+.close-btn:active {
+    background: #4d4d4d;
+    color: var(--text);
+}
+
+/* The viewport area under the headerbar */
+.terminal-view {
+    padding: 24px 25px 20px;
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    line-height: 1.55;
+}
+
+/* Prompt (machine voice): accent where it counts, dim where it doesn't */
+.prompt-line {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
 }
 
 .user-name {
     color: var(--accent);
-    font-weight: bold;
+    font-weight: 600;
+}
+
+.prompt-path {
+    color: var(--dim);
 }
 
 .typed-text {
     color: var(--text);
 }
 
+.output-line {
+    color: var(--dim);
+}
+
+.output-line strong {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* Diegetic hint: `ls` output styling (machine voice) */
+.ls-hint {
+    color: var(--dim);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    margin-top: 22px;
+    text-align: left;
+    width: 100%;
+}
+
+.ls-hint .cmd {
+    color: var(--text);
+}
+
+.ls-hint .dir {
+    color: #7cb7ae;  /* teal-tinted: ls paints dirs in color, like real ls */
+}
+
+/* Diegetic wayfinding: `$ exit` / `$ cd ..` links back up the tree */
+.hint-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--dim);
+    text-decoration: none;
+    transition: color 0.15s ease-out, transform 0.08s ease-out;
+}
+
+.hint-link:hover {
+    color: var(--text);
+}
+
+/* Instant press feedback: lives on pointer-down, not release */
+.hint-link:active {
+    color: var(--text);
+    transform: scale(0.97);
+}
+
 .cursor {
     display: inline-block;
-    width: 8px;
-    height: 18px;
+    width: 0.55em;
+    height: 1.05em;
     background: var(--text);
-    margin-left: 4px;
-    animation: blink 1s infinite;
+    vertical-align: text-bottom;
+    margin-left: 2px;
+    animation: blink 1s steps(1) infinite;   /* steps() = terminal-authentic hard blink */
 }
 
 @keyframes blink {
@@ -47,44 +245,53 @@
     51%, 100% { opacity: 0; }
 }
 
-h1 {
-    color: var(--accent);
-    font-family: 'Lora', serif;
-    margin-left: 16px;
-}
-
-body {
-    background: var(--bg);
-    min-height: 100vh;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
+/* ============ Socials hub (beta.html) ============ */
 
 .Socials {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    font-family: 'Libertinus Serif', serif;
+    width: 100%;
+    max-width: 420px;
+    margin-top: 24px;
 }
 
 .Socials a {
     position: relative;
     text-align: center;
     padding: 15px 50px;
-    background: #1c1b1b;
-    color: #ffffff;
+    background: var(--surface-glass);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(160%);
+    backdrop-filter: blur(var(--blur)) saturate(160%);
+    color: var(--text);
     text-decoration: none;
-    border-radius: 10px;
+    border: 1px solid var(--stroke-hairline);
+    border-radius: 12px;
+    font-weight: 500;
     opacity: 0;
     transform: translateY(15px);
-    transition: opacity 0.4s ease, transform 0.4s ease, background 0.2s ease, border-color 0.2s ease;
+    /* Fast, interruptible-feeling motion */
+    transition:
+        opacity 0.45s var(--ease-out),
+        transform 0.45s var(--ease-out),
+        background 0.15s ease-out,
+        border-color 0.15s ease-out;
 }
 
 .Socials a.show {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* Bright top edge = light catching the material's top rim */
+.Socials a::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--stroke-edge), transparent);
+    border-radius: 12px 12px 0 0;
+    pointer-events: none;
 }
 
 .Socials a::after {
@@ -95,11 +302,37 @@ body {
     bottom: -5px;
     left: 0;
     background: var(--accent);
-    transition: width 0.3s ease;
+    transition: width 0.3s var(--ease-out);
 }
 
 .Socials a:hover::after {
     width: 100%;
+}
+
+/* Status feedback only — never animate the press itself on opacity/transform */
+.Socials a:hover {
+    background: rgba(48, 47, 47, 0.65);
+    border-color: var(--stroke-edge);
+}
+
+/* Instant press feedback: lives on pointer-down, not release */
+.Socials a:active {
+    transform: translateY(0) scale(0.97);
+    background: rgba(26, 25, 25, 0.75);
+    border-color: var(--stroke-edge);
+}
+
+.Socials a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+}
+
+/* ============ Gallery flipbook (photos.html) ============ */
+
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .gallery-item img {
@@ -108,24 +341,12 @@ body {
     height: auto;
 }
 
-.gallery {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 40px;
-}
-
 .flipbook {
     position: relative;
-    width: 700px;
+    width: min(700px, 100%);
     height: 480px;
     margin-top: 40px;
+    margin-bottom: 26px;
     perspective: 1200px;
 }
 
@@ -137,20 +358,67 @@ body {
     height: 100%;
     object-fit: cover;
     border-radius: 6px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--stroke-hairline);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
     opacity: 0;
     transform-origin: left center;
-    animation: flip 12s infinite;
+    /* 6 photos × 3s stagger = 18s cycle, so every photo gets its own window */
+    animation: flip 18s infinite;
+    will-change: transform, opacity;
 }
 
 .flipbook img:nth-child(1) { animation-delay: 0s; }
 .flipbook img:nth-child(2) { animation-delay: -3s; }
 .flipbook img:nth-child(3) { animation-delay: -6s; }
 .flipbook img:nth-child(4) { animation-delay: -9s; }
+.flipbook img:nth-child(5) { animation-delay: -12s; }
+.flipbook img:nth-child(6) { animation-delay: -15s; }
 
 @keyframes flip {
     0%   { opacity: 1; transform: rotateY(0deg); }
     20%  { opacity: 1; transform: rotateY(0deg); }
     30%  { opacity: 0; transform: rotateY(-110deg); }
     100% { opacity: 0; transform: rotateY(-110deg); }
+}
+
+/* ============ Adaptivity: reduced motion, transparency, contrast ============ */
+
+@media (prefers-reduced-motion: reduce) {
+    .Socials a {
+        transition: opacity 0.2s ease;
+        transform: none !important;        /* cross-fade, no slide */
+    }
+    .Socials a:active {
+        transform: none !important;
+    }
+    .hint-link:active {
+        transform: none;
+    }
+    .flipbook img {
+        animation: none;
+        opacity: 1;
+        position: relative;
+    }
+    .flipbook img:nth-child(n + 4) {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .terminal,
+    .Socials a {
+        background: var(--surface);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+    }
+}
+
+@media (prefers-contrast: more) {
+    .terminal,
+    .Socials a {
+        background: var(--surface);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        border-color: rgba(255, 255, 255, 0.55);
+    }
 }

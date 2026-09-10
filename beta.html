@@ -8,14 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libertinus+Serif:wght@400;600;700&family=Lora:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Libertinus+Serif:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
+<body>
     <main>
-        <body>
-         <h1 class="reveal-item">JoeWaves<span></span></h1>
-         <br>
-         <br>
-        </body>
+        <h1>JoeWaves</h1>
         <div class="Socials">
 
             <a href="https://blog.joewaves.com/" target="_blank">Blog
@@ -27,7 +24,7 @@
             <a href="https://discord.com/users/1365777371340214383" target="_blank">Discord
             </a>
 
-            <a href="photos.html" target="_blank">Gallery
+            <a href="photos.html">Gallery
             </a>
 
             <a href="https://www.youtube.com/@pleshyyy" target="_blank">YouTube
@@ -35,8 +32,12 @@
 
             <a href="https://x.com/liltimmyonyt" target="_blank">X
             </a>
+
+            <a class="hint-link" href="index.html">$ exit</a>
         </div>
-<script>
+        <p class="ls-hint" aria-hidden="true"><span class="cmd">$ ls ~/links</span>&nbsp;&nbsp;<span class="dir">gallery/</span>&nbsp;&nbsp;blog&nbsp;&nbsp;github&nbsp;&nbsp;discord&nbsp;&nbsp;youtube&nbsp;&nbsp;x</p>
+    </main>
+    <script>
     document.addEventListener("DOMContentLoaded", () => {
         const socialLinks = document.querySelectorAll(".Socials a");
         
@@ -46,6 +47,6 @@
             }, index * 150 + 500); 
         });
     });
-</script>
-    </main>
+    </script>
+</body>
 </html>
